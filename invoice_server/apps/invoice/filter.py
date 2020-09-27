@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Sum, F, Q
 
 def filter_results(request, queryset):
     if 'date_gte' in request.query_params:
@@ -14,14 +14,7 @@ def filter_results(request, queryset):
     if 'order_date' in request.query_params:
         order = request.query_params['order_date']
     else:
-        order = None
-
-    if 'order_price' in request.query_params:
-        order_price = request.query_params['order_price']
-    else:
-        order_price = None 
-
-        
+        order = None        
 
     if date_gte != None and date_lte != None:
         queryset = queryset.filter(Q(date__lte=date_lte) & Q(date__gte=date_gte))
@@ -31,22 +24,37 @@ def filter_results(request, queryset):
         queryset = queryset.filter(Q(date__lte=date_lte))
     else:
         queryset = queryset
-        
-
-    if order != None:
-        if order == 'desc':
-            queryset = queryset.filter().order_by('-date')
-        else:
-            queryset = queryset.filter().order_by('date')
-    else:
-        pass 
-
-    if order_price != None:
-        if order_price == 'desc':
-            queryset = queryset.filter().order_by('-total_price')
-        else:
-            queryset = queryset.filter().order_by('total_price')
-    else:
-        pass
 
     return queryset
+
+def filter_total_price(request, Invoice):
+        if 'order_price' in request.query_params:
+            order_price = request.query_params['order_price']
+        else:
+            order_price = None
+
+        if 'price_gte' in request.query_params:
+            price_gte = request.query_params['price_gte']
+        else:
+            price_gte = None
+        
+        if 'price_lte' in request.query_params:
+            price_lte = request.query_params['price_lte']
+        else:
+            price_lte = None
+
+        if order_price != None and (price_lte != None or price_gte != None):
+            price_lte = -1 if price_lte == None else price_lte
+            price_gte = 0 if price_gte == None else price_gte
+
+            queryset = Invoice.objects.values('title', 'id')\
+                .annotate(invoice_total_price = Sum('item__amount'))\
+                .filter(Q(invoice_total_price__gte=price_gte) & Q(invoice_total_price__gte=price_lte))\
+                .order_by(('-' if order_price == 'desc' else '') + 'invoice_total_price')
+        else:
+            queryset = Invoice.objects.values('title', 'id')\
+            .annotate(invoice_total_price = Sum('item__amount'))\
+            .filter(invoice_total_price__gt=0)\
+            .order_by('invoice_total_price')   
+
+        return queryset

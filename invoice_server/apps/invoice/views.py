@@ -7,8 +7,8 @@ from .serializer import InvoiceSerializer
 from rest_framework.decorators import api_view
 from .scripts.pdf_generator import generate_pdf
 from django.shortcuts import HttpResponse
-from django.db.models import Sum
-from .filter import filter_results
+from django.db.models import Sum, F
+from .filter import filter_results, filter_total_price
 
 # Create your views here.
 class InvoiceViewset(viewsets.ViewSet):
@@ -17,9 +17,11 @@ class InvoiceViewset(viewsets.ViewSet):
 
     #lists all the items associated to an invoice
     def list(self, request):
-        #Date filter
-        invoices = filter_results(request, self.queryset)
+        queryset = filter_total_price(request, Invoice)
+        invoices = filter_results(request, queryset)
+        #print(invoices)
         serializer  = InvoiceSerializer(invoices, many = True)
+        print(serializer.data)
         return Response(serializer.data, status = status.HTTP_200_OK)
 
 

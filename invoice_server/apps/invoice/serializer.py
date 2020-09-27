@@ -11,7 +11,8 @@ from apps.item.serializer import ItemSerializer
 class InvoiceSerializer(serializers.ModelSerializer):
     
     item_set = ItemSerializer(many = True, read_only = True)
+    invoice_total_price = serializers.DecimalField(max_digits=100000, decimal_places = 2)
 
     class Meta:
         model = Invoice
-        fields = ['id', 'title', 'reciept_image', 'date', 'item_set']
+        fields = ['id', 'title', 'reciept_image', 'date', 'item_set', 'invoice_total_price']
