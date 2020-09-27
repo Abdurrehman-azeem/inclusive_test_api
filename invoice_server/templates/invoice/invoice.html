@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang = en>
+    <head>
+        <meta charset = 'UTF-8' />
+        <meta name = "viewport" content='width = device-width, initial-scale = 1.0'/>
+        <title>Invoice</title>
+
+        <style>
+            @page{
+                size: "A4";
+                margin: 2cm 1.5 2cm 1.5;
+
+                @top-center {
+                    content: '{{title}}';
+                    font-size: 30px;
+                }
+                @bottom-right {
+                    content: "Page " counter(page) " of " counter(pages);
+                }   
+            }
+        </style>
+    </head>
+
+    <body>
+        <h4>Reciept</h4>
+        <img src="{{image.url}}"/>
+        <br><br>
+        <h4 class = "">Date {{date}}</h4>
+        <hr>
+        <h4 class='text-center'>Items</h4>
+        
+        <table style="width:90%">
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+            </tr>
+            {% for itemlist in items %}
+                <tr>
+                    {%for item in itemlist %}
+                        <td><p>{{item}}</p></td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </body>
+</html>
