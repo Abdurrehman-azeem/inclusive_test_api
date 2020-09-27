@@ -2,9 +2,9 @@
 Api to generate PDFs from invoice data.
 
 To get script working.
-->Download the code ()
+->Download the code
 
-->Using terminal/command prompt change directory to inclusive_test/Scripts and run activate (To initialize virtual environment)
+->Using terminal/command prompt change directory to inclusive_test/Scripts (cd inclusive_test/Scripts & activate to initialize virtual environment) and run activate (To initialize virtual environment)
 
 ->Using terminal/command prompt change directory to invoice server
 
