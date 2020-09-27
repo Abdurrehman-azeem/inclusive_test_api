@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     #3rd party apps
     'rest_framework',
+    'django_filters',
 
     #custom apps
     'apps.invoice',
@@ -78,6 +79,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'invoice_server.wsgi.application'
 
+REST_FRAMEWORK  = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend')
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

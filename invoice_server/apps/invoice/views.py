@@ -4,21 +4,21 @@ from django.shortcuts import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .models import Invoice
 from .serializer import InvoiceSerializer
-from rest_framework.decorators import action
 from rest_framework.decorators import api_view
 from .scripts.pdf_generator import generate_pdf
 from django.shortcuts import HttpResponse
-from collections import defaultdict
-
-
+from django.db.models import Sum
+from .filter import filter_results
 
 # Create your views here.
 class InvoiceViewset(viewsets.ViewSet):
-    parser_classes  = (FormParser, MultiPartParser)
-    
+    parser_classes      = (FormParser, MultiPartParser)
+    queryset            = Invoice.objects.all()
+
     #lists all the items associated to an invoice
     def list(self, request):
-        invoices    = Invoice.objects.all()
+        #Date filter
+        invoices = filter_results(request, self.queryset)
         serializer  = InvoiceSerializer(invoices, many = True)
         return Response(serializer.data, status = status.HTTP_200_OK)
 
@@ -32,13 +32,13 @@ class InvoiceViewset(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk = None):
-        queryset    = Invoice.objects.all()
+        queryset    = self.queryset
         invoice     = get_object_or_404(queryset, pk = pk)
         serializer  = InvoiceSerializer(invoice)
         return Response(serializer.data, status = status.HTTP_200_OK)
 
     def partial_update(self, request, pk = None):
-        queryset    = Invoice.objects.all()
+        queryset    = self.queryset
         invoice     = get_object_or_404(queryset, pk = pk)
         serializer  = InvoiceSerializer(invoice, data = request.data)
 
@@ -48,10 +48,11 @@ class InvoiceViewset(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_304_NOT_MODIFIED)
 
     def destroy(self, request, pk = None):
-        queryset    = Invoice.objects.all()
+        queryset    = self.queryset
         invoice     = get_object_or_404(queryset, pk = pk)
         invoice.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET'])
 def download_invoice(request, pk = None):
