@@ -54,7 +54,6 @@ def filter_total_price(request, Invoice):
                 .order_by(('-' if order_price == 'desc' else '') + 'invoice_total_price')
         else:
             queryset = Invoice.objects.values('title', 'id', 'date')\
-            .annotate(invoice_total_price = Sum('item__amount'))\
-            .filter(invoice_total_price__gt=0)  
+            .annotate(invoice_total_price = Sum('item__amount'))  
 
         return queryset
