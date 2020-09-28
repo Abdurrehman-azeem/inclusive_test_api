@@ -43,18 +43,18 @@ def filter_total_price(request, Invoice):
         else:
             price_lte = None
 
-        if order_price != None and (price_lte != None or price_gte != None):
+        if order_price != None or (price_lte != None or price_gte != None):
             price_lte = -1 if price_lte == None else price_lte
             price_gte = 0 if price_gte == None else price_gte
+            order_price = 'asc' if order_price == None else order_price
 
-            queryset = Invoice.objects.values('title', 'id')\
+            queryset = Invoice.objects.values('title', 'id', 'date')\
                 .annotate(invoice_total_price = Sum('item__amount'))\
                 .filter(Q(invoice_total_price__gte=price_gte) & Q(invoice_total_price__gte=price_lte))\
                 .order_by(('-' if order_price == 'desc' else '') + 'invoice_total_price')
         else:
-            queryset = Invoice.objects.values('title', 'id')\
+            queryset = Invoice.objects.values('title', 'id', 'date')\
             .annotate(invoice_total_price = Sum('item__amount'))\
-            .filter(invoice_total_price__gt=0)\
-            .order_by('invoice_total_price')   
+            .filter(invoice_total_price__gt=0)  
 
         return queryset
